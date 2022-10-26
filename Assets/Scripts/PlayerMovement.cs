@@ -1,87 +1,79 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Playables;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 2f;
-    private float horizontal;
-    private float vertical;
-    public float jump = 2f;
+    public float runSpeed = 2f;
+    public float jumpForce = 10f;
+
+    private Rigidbody2D body;
     private Animator anim;
-    
-    public PlayableDirector director;
-
-    //private Transform playerTransform;
-    private Rigidbody2D rb;
-    private void Awake()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
-
-        /*if(GroundChecker.isGrounded)
-        {
-            A
-        }*/
-    }
+    private float dirX;
 
     // Start is called before the first frame update
     void Start()
     {
-        //playerTransform = GetComponent<Transform>();
-        
+        body = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        horizontal = Input.GetAxisRaw("Horizontal");
+        dirX = Input.GetAxisRaw("Horizontal");
 
-        if(horizontal == 0)
-        {
-            anim.SetBool("Correr", false);
-        }
-
-        else
+        if(dirX < 0)
         {
             anim.SetBool("Correr", true);
+            transform.rotation = Quaternion.Euler(0,180,0);
+            
+        }
+        else if(dirX > 0)
+        {
+            anim.SetBool("Correr", true);
+            transform.rotation = Quaternion.Euler(0,0,0);
+        }
+        else
+        {
+            anim.SetBool("Correr", false); 
         }
 
-        //Rotarpj
+        if(Input.GetButtonDown("Jump") && CheckGround.isGrounded)
+        {
+            body.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            anim.SetBool("Saltar", true);
+        }
 
-        vertical = Input.GetAxisRaw("Vertical");
-
-        if(vertical == 1)
+        if (CheckGround.isGrounded)
+        {
+            anim.SetBool("Saltar", false);
+        }
+        else
         {
             anim.SetBool("Saltar", true);
         }
 
-        else
+        /*
+        GameManager.Instance.RestarVidas();
+
+
+        GameManager.Instance.puntos = 1;
+        
+        Global.nivel += 1;
+        */
+    }
+
+    void FixedUpdate()
+    {
+        body.velocity = new Vector2(dirX * runSpeed, body.velocity.y);
+    }
+
+    /*private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.tag == "Grounds")
         {
             anim.SetBool("Saltar", false);
         }
-
-
-        //playerTransform.position += new Vector3 (horizontal * speed * Time.deltaTime, 0, 0);
-        //playerTransform.position += new Vector3 (1, 0, 0)* horizontal * speed * Time.deltaTime;
-        //playerTransform.Translate(Vector3.right * horizontal * speed * Time.deltaTime, Space.World);
-    }
-
-    private void FixedUpdate()
-    {
-        rb.velocity = new Vector2 (2f, 0f)* horizontal * speed;
-        
-        //rb.AddForce(new Vector2 (100f, 0f) * horizontal * speed * Time.deltaTime); (Cosas puntuales, ejemplo: dash o salto, no para moverse)
-        //rb.MovePosition(rb.position + new Vector2 (1f, 0f) * horizontal * speed * Time.deltaTime);
-        //transform.position = Vector2.MoveTowards (transform.position, new Vector2 (8f, transform.position.y), horizontal * speed * Time.deltaTime);
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if(other.gameObject.tag == "Cinematica")
-        {
-            director.Play();
-        }        
-    }
+    }*/
 }

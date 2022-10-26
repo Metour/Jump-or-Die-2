@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
-        DontDestroyOnLoad(this); 
+        DontDestroyOnLoad(this.gameObject);
     }
 
     public void RestarVidas()
